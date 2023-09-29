@@ -1,0 +1,108 @@
+--1.	Generate a list of salespeople and sort it in descending order by hire date. Show the first name, last name, hire date, and salary for each salesperson.
+SELECT * FROM salespersons
+ORDER BY SHireDate DESC;
+
+--2.	Generate a list of customers whose last name begins with the letter “M.” Show the first and last names of these customers.  Sort the list of customers in descending order by last name.
+SELECT CFirstName, CLastName FROM customer
+WHERE CLastName LIKE 'M%'
+ORDER BY CLastName DESC;
+
+--3.	Generate a list of customers with annual incomes greater than $80,000 who purchased cars from salesperson “Katie.” Show the first name, last name, and annual income of each of these customers.
+
+SELECT
+    Customer.CFirstName,
+    Customer.CLastName,
+    Customer.AnnualIncome
+FROM
+    customer
+JOIN
+    encounter ON customer.CustomerID = encounter.CustomerID
+JOIN
+    salespersons ON encounter.SalesID = salespersons.SalesID
+WHERE
+    customer.AnnualIncome > 80000
+    AND salespersons.SFirstName = 'Katie';
+
+--4.	Which customers purchased vehicles from salesperson “Dudley” despite having a “Poor,” “Very Poor,” or “Extremely Poor” credit rating? Show the first name, last name, and credit description for these customers.
+SELECT
+    customer.CFirstName,
+    customer.CLastName,
+    [credit rating].CreditDescription
+FROM
+    Customer
+JOIN
+    encounter ON Customer.CustomerID = encounter.CustomerID
+JOIN
+    salespersons ON Encounter.SalesID = salespersons.SalesID
+JOIN
+   [credit rating] ON Customer.CreditID = [credit rating].CreditID
+WHERE
+    [credit rating].CreditDescription IN ('Poor', 'Very Poor', 'Extremely Poor')
+    
+    AND salespersons.SFirstName = 'Dudley';
+
+	--5.Salesperson Colin recently had an encounter with a customer who he would like to contact again. Unfortunately, Colin can’t remember if the customer’s last name was “Hansen” or “Hanson.” Construct a query to help Colin find the correct customer.
+	SELECT
+    customer.CFirstName,
+    customer.CLastName,
+    customer.CPhone
+FROM
+    customer
+JOIN
+    encounter ON customer.CustomerID = encounter.CustomerID
+JOIN
+    salespersons ON Encounter.SalesID = salespersons.SalesID
+WHERE
+    salespersons.SFirstName = 'Colin'
+    AND (customer.CLastName = 'Hansen' OR customer.CLastName = 'Hanson');
+
+--6.Construct a query to count how many encounters resulted in the customer declining to make a purchase. Use the COUNT function. (Hint: a customer can have many encounters)	
+	
+SELECT COUNT(*) AS DeclinedEncountersCount
+FROM Encounter
+WHERE Purchase = 'False';
+
+
+
+--7.Customers with low annual income or poor credit ratings often have trouble qualifying for credit. A new, local credit agency may be better able to serve this market segment than the current options can. The manager would like to talk to a few of them.
+SELECT customer.CFirstName, customer.CLastName, customer.AnnualIncome, [credit rating].CreditDescription
+FROM customer
+JOIN [credit rating] ON customer.CreditID = [credit rating].CreditID
+WHERE (customer.AnnualIncome < 40000 OR [credit rating].CreditDescription IN ('Poor', 'Very Poor', 'Extremely Poor'));
+
+--8.Generate a query to find the average income of customers who purchased a car on their interaction.
+SELECT  AVG(AnnualIncome) AS AVERAGEINCOME, customer.CFirstName, customer.CLastName
+FROM customer 
+JOIN encounter  ON customer.customerID = encounter.customerID
+WHERE Purchase = 'True'
+group by customer.CFirstName, customer.CLastName;
+
+
+
+--9.	Construct a query to show customers with an annual income greater than $100,000 who have a credit rating of “Fair,” “Poor,” “Very Poor,” or “Extremely Poor.” Show each customer’s first name, last name, credit description, and annual income.
+
+SELECT
+    customer.CFirstName,
+    customer.CLastName,
+   [credit rating].CreditDescription,
+   customer.AnnualIncome
+FROM
+    customer 
+JOIN
+    [credit rating]  ON customer.CreditID = [credit rating].CreditID
+WHERE
+   customer.AnnualIncome > 100000
+    AND [credit rating].CreditDescription IN ('Fair', 'Poor', 'Very Poor', 'Extremely Poor');
+
+	SELECT
+   customer.CFirstName,
+    customer.CLastName,
+    [credit rating].CreditDescription,
+    CAST(REPLACE(customer.AnnualIncome, '$', '') AS INT) AS AnnualIncome
+FROM
+  customer
+JOIN
+    [credit rating] ON customer.CreditID = [credit rating].CreditID
+WHERE
+    CAST(REPLACE(customer.AnnualIncome, '$', '') AS INT) > 100000
+    AND[credit rating].CreditDescription IN ('Fair', 'Poor', 'Very Poor', 'Extremely Poor');
